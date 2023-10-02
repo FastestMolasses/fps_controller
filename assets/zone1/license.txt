@@ -1,0 +1,11 @@
+Model Information:
+* title:	Level5 Zone1 (Level Design 2002)
+* source:	https://sketchfab.com/3d-models/level5-zone1-level-design-2002-7842d43173c54ec18da10246cdc6da71
+* author:	hansolocambo (https://sketchfab.com/hansolocambo)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Level5 Zone1 (Level Design 2002)" (https://sketchfab.com/3d-models/level5-zone1-level-design-2002-7842d43173c54ec18da10246cdc6da71) by hansolocambo (https://sketchfab.com/hansolocambo) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
