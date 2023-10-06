@@ -1,3 +1,4 @@
+mod arms;
 mod controller;
 
 use std::f32::consts::TAU;
@@ -9,11 +10,11 @@ use bevy::{
     prelude::*,
     window::CursorGrabMode,
 };
-use bevy_console::{ConsolePlugin, ConsoleOpen};
+use bevy_console::{ConsoleOpen, ConsolePlugin};
 use bevy_rapier3d::prelude::*;
 use controller::*;
 
-const SPAWN_POINT: Vec3 = Vec3::new(0.0, 1.0, 0.0);
+const SPAWN_POINT: Vec3 = Vec3::new(-25.0, -3.75, -29.0);
 
 // TODO: CAMERA SHAKE ON LANDING
 
@@ -28,12 +29,9 @@ fn main() {
         .add_plugins((DefaultPlugins, ConsolePlugin))
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         // .add_plugins(RapierDebugRenderPlugin::default())
-        .add_plugins(FpsControllerPlugin)
+        .add_plugins((FpsControllerPlugin, arms::ArmsPlugin))
         .add_systems(Startup, setup)
-        .add_systems(
-            Update,
-            (manage_cursor, scene_colliders, display_text),
-        )
+        .add_systems(Update, (manage_cursor, scene_colliders, display_text))
         .run();
 }
 
