@@ -54,9 +54,7 @@ fn load_arms(
     const SCALE: f32 = 1.5;
 
     if let Some(gltf) = gltf {
-        print!("Loaded arms_pistol.glb");
         let scene = gltf.scenes.first().unwrap().clone();
-        // println!(" with {} nodes", );
 
         for node in scene.iter_fields().collect::<Vec<_>>() {
             println!("Node: {:?}", node);

@@ -13,6 +13,7 @@ impl Plugin for FpsControllerPlugin {
                 fps_controller_input,
                 fps_controller_look,
                 fps_controller_move,
+                // new_controller_move,
                 fps_controller_render,
             )
                 .chain(),
@@ -86,7 +87,6 @@ pub struct FpsController {
     pub stop_speed: f32,
     pub sensitivity: f32,
     pub enable_input: bool,
-    pub step_offset: f32,
     pub key_forward: KeyCode,
     pub key_back: KeyCode,
     pub key_left: KeyCode,
@@ -130,7 +130,6 @@ impl Default for FpsController {
             ground_tick: 0,
             stop_speed: 1.0,
             jump_speed: 8.5,
-            step_offset: 0.0,
             enable_input: true,
             key_forward: KeyCode::W,
             key_back: KeyCode::S,
@@ -343,7 +342,6 @@ pub fn fps_controller_move(
                     }
 
                     /* Crouching */
-
                     let crouch_height = controller.crouch_height;
                     let upright_height = controller.upright_height;
 
@@ -357,25 +355,6 @@ pub fn fps_controller_move(
 
                     if let Some(mut capsule) = collider.as_capsule_mut() {
                         capsule.set_segment(Vec3::Y * 0.5, Vec3::Y * controller.height);
-                    }
-
-                    // Step offset
-                    if controller.step_offset > f32::EPSILON && controller.ground_tick >= 1 {
-                        let cast_offset =
-                            velocity.linvel.normalize_or_zero() * controller.radius * 1.0625;
-                        let cast = physics_context.cast_ray_and_get_normal(
-                            transform.translation
-                                + cast_offset
-                                + Vec3::Y * controller.step_offset * 1.0625,
-                            -Vec3::Y,
-                            controller.step_offset * 0.9375,
-                            false,
-                            filter,
-                        );
-                        if let Some((_, hit)) = cast {
-                            transform.translation.y += controller.step_offset * 1.0625 - hit.toi;
-                            transform.translation += cast_offset;
-                        }
                     }
                 }
             }
@@ -414,14 +393,23 @@ fn get_axis(key_input: &Res<Input<KeyCode>>, key_pos: KeyCode, key_neg: KeyCode)
 
 pub fn fps_controller_render(
     mut render_query: Query<(&mut Transform, &RenderPlayer), With<RenderPlayer>>,
-    logical_query: Query<(&Transform, &Collider, &FpsController, &CameraConfig), (With<LogicalPlayer>, Without<RenderPlayer>)>,
+    logical_query: Query<
+        (&Transform, &Collider, &FpsController, &CameraConfig),
+        (With<LogicalPlayer>, Without<RenderPlayer>),
+    >,
 ) {
     for (mut render_transform, render_player) in render_query.iter_mut() {
-        if let Ok((logical_transform, collider, controller, camera_config)) = logical_query.get(render_player.logical_entity) {
+        if let Ok((logical_transform, collider, controller, camera_config)) =
+            logical_query.get(render_player.logical_entity)
+        {
             if let Some(capsule) = collider.as_capsule() {
-                let camera_height = capsule.segment().b().y + capsule.radius() * camera_config.radius_scale + camera_config.height_offset;
-                render_transform.translation = logical_transform.translation + Vec3::Y * camera_height;
-                render_transform.rotation = Quat::from_euler(EulerRot::YXZ, controller.yaw, controller.pitch, 0.0);
+                let camera_height = capsule.segment().b().y
+                    + capsule.radius() * camera_config.radius_scale
+                    + camera_config.height_offset;
+                render_transform.translation =
+                    logical_transform.translation + Vec3::Y * camera_height;
+                render_transform.rotation =
+                    Quat::from_euler(EulerRot::YXZ, controller.yaw, controller.pitch, 0.0);
             }
         }
     }

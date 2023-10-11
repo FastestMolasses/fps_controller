@@ -14,7 +14,8 @@ use bevy_console::{ConsoleOpen, ConsolePlugin};
 use bevy_rapier3d::prelude::*;
 use controller::*;
 
-const SPAWN_POINT: Vec3 = Vec3::new(-25.0, -3.75, -29.0);
+// const SPAWN_POINT: Vec3 = Vec3::new(-25.0, -3.75, -29.0);
+const SPAWN_POINT: Vec3 = Vec3::new(0.0, 1.0, 0.0);
 
 // TODO: CAMERA SHAKE ON LANDING
 
@@ -29,7 +30,8 @@ fn main() {
         .add_plugins((DefaultPlugins, ConsolePlugin))
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         // .add_plugins(RapierDebugRenderPlugin::default())
-        .add_plugins((FpsControllerPlugin, arms::ArmsPlugin))
+        // .add_plugins(arms::ArmsPlugin)
+        .add_plugins(FpsControllerPlugin)
         .add_systems(Startup, setup)
         .add_systems(Update, (manage_cursor, scene_colliders, display_text))
         .run();
@@ -77,16 +79,21 @@ fn setup(mut commands: Commands, assets: Res<AssetServer>) {
                 yaw: TAU * 5.0 / 8.0,
                 ..default()
             },
-            FpsController {
-                // move_mode: MoveMode::Noclip,
-                air_acceleration: 80.0,
+            KinematicCharacterController {
                 ..default()
             },
         ))
-        .insert(CameraConfig {
-            height_offset: 0.0,
-            radius_scale: 0.75,
-        })
+        .insert((
+            FpsController {
+                move_mode: MoveMode::Ground,
+                air_acceleration: 80.0,
+                ..default()
+            },
+            CameraConfig {
+                height_offset: 0.0,
+                radius_scale: 0.75,
+            },
+        ))
         .id();
 
     commands.spawn((
@@ -103,8 +110,14 @@ fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         },
     ));
 
+    // Load level
+    // commands.insert_resource(MainScene {
+    //     handle: assets.load("zone1/scene.gltf"),
+    //     is_loaded: false,
+    // });
+    // Load playground
     commands.insert_resource(MainScene {
-        handle: assets.load("zone1/scene.gltf"),
+        handle: assets.load("playground.glb"),
         is_loaded: false,
     });
 
@@ -153,7 +166,7 @@ fn scene_colliders(
         commands.spawn(SceneBundle {
             scene,
             transform: Transform {
-                scale: Vec3::splat(SCALE),
+                // scale: Vec3::splat(SCALE),  // NOTE: ONLY USE THIS FOR ZONE1 MAP
                 ..Default::default()
             },
             ..default()
@@ -164,8 +177,9 @@ fn scene_colliders(
 
             // The collider needs to be rotated 90 degrees around the x axis
             let mut collider_transform = node.transform;
-            collider_transform.rotate_x(-std::f32::consts::FRAC_PI_2);
-            collider_transform.scale = Vec3::splat(SCALE);
+            // NOTE: ONLY USE THIS FOR ZONE1 MAP
+            // collider_transform.rotate_x(-std::f32::consts::FRAC_PI_2);
+            // collider_transform.scale = Vec3::splat(SCALE);
 
             if let Some(gltf_mesh) = node.mesh.clone() {
                 let gltf_mesh = gltf_mesh_assets.get(&gltf_mesh).unwrap();
